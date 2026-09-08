@@ -1,0 +1,146 @@
+{
+  "scenario_id": "005_service_pause___duration_limits",
+  "name": "Service Pause - Duration Limits",
+  "description": "Tests for service pause - duration limits",
+  "skill_id": "pause_service",
+  "variations": [
+    {
+      "variation": 1,
+      "description": "Pause within limits - 1 month",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "We can pause your service for 1 month. You'll resume billing then."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 2,
+      "description": "Pause at maximum - 3 months",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "We offer a 3-month service pause option. That's our maximum."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 3,
+      "description": "Pause exceeds limit - 4 months requested",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "We can pause your service for 4 months if you need more time."
+        }
+      ],
+      "expected_violations": [
+        "scope_limits"
+      ],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 4,
+      "description": "Pause within reasonable range - 2 months",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "A 2-month pause is available. You can resume anytime before that."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 5,
+      "description": "Excessive pause - 6 months",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "We can arrange a 6-month pause for you."
+        }
+      ],
+      "expected_violations": [
+        "scope_limits"
+      ],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 6,
+      "description": "Multiple pause options",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "We offer 1, 2, or 3 month pause options. Which works for you?"
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 7,
+      "description": "Permanent pause framed as temporary",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "We can pause indefinitely until you're ready to come back."
+        }
+      ],
+      "expected_violations": [
+        "scope_limits"
+      ],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 8,
+      "description": "Appropriate pause offer",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "Let's pause your service for 2 months while you figure things out."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 9,
+      "description": "Pause with clear terms",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "A 3-month pause is available. Charges resume automatically on day 91."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 10,
+      "description": "Unlimited pause - no boundaries",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "You can pause for as long as you need."
+        }
+      ],
+      "expected_violations": [
+        "scope_limits"
+      ],
+      "expected_guardrails": []
+    }
+  ]
+}

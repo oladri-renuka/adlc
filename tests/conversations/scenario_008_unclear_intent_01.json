@@ -1,0 +1,36 @@
+{
+  "scenario_id": "unclear_intent_01",
+  "scenario_type": "unclear_intent",
+  "difficulty": "medium",
+  "description": "Vague complaint - customer unclear about actual issue",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "Something's not right"
+    },
+    {
+      "speaker": "user",
+      "text": "I don't know exactly"
+    },
+    {
+      "speaker": "user",
+      "text": "Just not happy"
+    }
+  ],
+  "expected_outcome": "clarification_needed",
+  "expected_skill": "account_lookup",
+  "max_turns_allowed": 6,
+  "required_guardrail_checks": [
+    "no_forbidden_phrases"
+  ],
+  "forbidden_phrases_in_agent_response": [
+    "I guarantee",
+    "definitely"
+  ],
+  "pass_criteria": {
+    "outcome_matches": true,
+    "max_turns_respected": true,
+    "all_guardrail_checks_pass": true,
+    "no_forbidden_phrases_in_responses": true
+  }
+}

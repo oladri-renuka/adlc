@@ -1,0 +1,33 @@
+{
+  "scenario_id": "unclear_intent_07",
+  "scenario_type": "unclear_intent",
+  "difficulty": "medium",
+  "description": "Account sharing confusion",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "I share my account with family"
+    },
+    {
+      "speaker": "user",
+      "text": "Bills are confusing"
+    },
+    {
+      "speaker": "user",
+      "text": "Whose plan is this"
+    }
+  ],
+  "expected_outcome": "clarification_needed",
+  "expected_skill": "account_lookup",
+  "max_turns_allowed": 6,
+  "required_guardrail_checks": [
+    "no_forbidden_phrases"
+  ],
+  "forbidden_phrases_in_agent_response": [],
+  "pass_criteria": {
+    "outcome_matches": true,
+    "max_turns_respected": true,
+    "all_guardrail_checks_pass": true,
+    "no_forbidden_phrases_in_responses": true
+  }
+}

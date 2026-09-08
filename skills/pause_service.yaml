@@ -1,0 +1,146 @@
+skill_id: pause_service
+name: "Pause Service"
+description: "Temporarily pause service instead of cancellation"
+version: "1.0"
+
+triggers:
+  - intent_keywords: ["pause", "suspend", "temporary", "hold"]
+    confidence_threshold: 0.7
+  - customer_action: "pause_service_requested"
+
+required_slots:
+  - account_id:
+      type: string
+      required: true
+  - account_status:
+      type: string
+      required: true
+  - unpaid_balance:
+      type: float
+      required: true
+  - pause_duration_months:
+      type: integer
+      required: false
+      description: "How long customer wants to pause (1-3)"
+
+guardrails:
+  - max_pause_months: 3
+    action_on_violation: "limit_to_max"
+  - require_no_unpaid_balance: true
+    action_on_violation: "block_action"
+
+actions:
+  - name: "check_pause_eligibility"
+    type: "deterministic"
+    logic: |
+      if unpaid_balance > 0:
+        return {
+          eligible: false,
+          reason: "unpaid_balance",
+          required_action: "settle_balance"
+        }
+      if pause_duration_months > 3:
+        return {
+          eligible: false,
+          reason: "exceeds_max_pause",
+          max_allowed: 3
+        }
+      return {
+        eligible: true,
+        max_pause_months: 3
+      }
+
+  - name: "calculate_pause_terms"
+    type: "deterministic"
+    logic: |
+      effective_pause_months = min(pause_duration_months, 3)
+      resume_date = add_months(today(), effective_pause_months)
+      return {
+        pause_start_date: today(),
+        resume_date: resume_date,
+        duration_months: effective_pause_months,
+        charges_during_pause: 0,
+        billing_holds: {
+          auto_resume: true,
+          reminder_sent_days_before: 7
+        }
+      }
+
+  - name: "generate_pause_confirmation"
+    type: "non-deterministic"
+    model: "claude-sonnet-4-6"
+    prompt_template: |
+      You are a telecom customer service representative.
+
+      Customer account: {account_id}
+      Pause period: {pause_start_date} to {resume_date} ({duration_months} months)
+
+      Generate a professional pause service confirmation that:
+      - Clearly states the pause period and dates
+      - Explains there are no charges during pause
+      - Confirms account will auto-resume on the date
+      - Provides steps to contact if they want to resume earlier
+      - Offers helpful tips for when they return
+
+      Keep response under 150 words.
+
+  - name: "wait_for_confirmation"
+    type: "deterministic"
+    logic: |
+      // Pause execution and wait for user to confirm pause
+      return {status: "awaiting_user_confirmation"}
+
+  - name: "process_pause"
+    type: "deterministic"
+    logic: |
+      if check_pause_eligibility().eligible:
+        db.update_account({
+          account_id: account_id,
+          status: "paused",
+          pause_start_date: now(),
+          pause_resume_date: resume_date,
+          billing_mode: "paused"
+        })
+        db.insert_pause_event({
+          account_id: account_id,
+          duration_months: effective_pause_months,
+          timestamp: now()
+        })
+        return {
+          status: "success",
+          pause_id: generate_id()
+        }
+      return {status: "failed"}
+
+state_machine:
+  initial: "check_eligibility"
+  states:
+    check_eligibility:
+      action: "check_pause_eligibility"
+      transitions:
+        eligible: "calculate_terms"
+        ineligible: "explain_ineligibility"
+    calculate_terms:
+      action: "calculate_pause_terms"
+      transitions:
+        success: "generate_confirmation"
+    generate_confirmation:
+      action: "generate_pause_confirmation"
+      transitions:
+        success: "await_confirmation"
+    await_confirmation:
+      action: "wait_for_confirmation"
+      transitions:
+        confirmed: "process_pause"
+        cancelled: "end_skill"
+    process_pause:
+      action: "process_pause"
+      transitions:
+        success: "completed"
+        failed: "escalate_to_human"
+    explain_ineligibility:
+      final: true
+    completed:
+      final: true
+    end_skill:
+      final: true

@@ -1,0 +1,37 @@
+{
+  "scenario_id": "topic_switch_09",
+  "scenario_type": "topic_switch",
+  "difficulty": "hard",
+  "description": "Account info leads to discovering better plan",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "What's my current usage"
+    },
+    {
+      "speaker": "user",
+      "text": "I'm using way more than I thought"
+    },
+    {
+      "speaker": "user",
+      "text": "Show me better plans"
+    }
+  ],
+  "skill_sequence": [
+    "account_lookup",
+    "plan_downgrade"
+  ],
+  "expected_outcome": "upgraded",
+  "max_turns_allowed": 7,
+  "required_guardrail_checks": [
+    "skill_detection",
+    "state_transition"
+  ],
+  "forbidden_phrases_in_agent_response": [],
+  "pass_criteria": {
+    "skill_sequence_correct": true,
+    "max_turns_respected": true,
+    "state_transitions_valid": true,
+    "outcome_matches": true
+  }
+}

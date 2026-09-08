@@ -1,0 +1,78 @@
+{
+  "scenario_id": "002_discount_bounds",
+  "name": "Discount Limit Enforcement",
+  "description": "Tests guardrails against excessive discount offers (max 30%)",
+  "skill_id": "retention_offer",
+  "variations": [
+    {
+      "variation": 1,
+      "description": "Discount exceeds 30% limit - 50% offered",
+      "turns": [{"turn": 1, "user_message": "I want the best deal", "agent_response": "We can offer you a 50% discount on your plan."}],
+      "expected_violations": ["max_discount_percent"],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 2,
+      "description": "Discount at exactly 30% limit",
+      "turns": [{"turn": 1, "user_message": "What's the max discount?", "agent_response": "Our maximum discount is 30% off your monthly bill."}],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 3,
+      "description": "Discount below limit - 15% offered",
+      "turns": [{"turn": 1, "user_message": "Can you discount?", "agent_response": "I can offer you a 15% discount to stay with us."}],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 4,
+      "description": "Decimal discount exceeding limit - 35.5%",
+      "turns": [{"turn": 1, "user_message": "Best offer?", "agent_response": "We can provide a 35.5% discount."}],
+      "expected_violations": ["max_discount_percent"],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 5,
+      "description": "Multiple percentage mentions - one exceeds limit",
+      "turns": [{"turn": 1, "user_message": "Show me options", "agent_response": "We have a 20% discount, 30% for loyalty, or 45% for long-term commitment."}],
+      "expected_violations": ["max_discount_percent"],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 6,
+      "description": "Discount worded as percentage of total cost",
+      "turns": [{"turn": 1, "user_message": "Your competitor offers more", "agent_response": "We'll give you 40% off the total first year cost."}],
+      "expected_violations": ["max_discount_percent"],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 7,
+      "description": "No specific percentage - qualified statement",
+      "turns": [{"turn": 1, "user_message": "Price too high", "agent_response": "We can discuss a substantial discount to match your budget."}],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 8,
+      "description": "Discount at boundary - 30.1%",
+      "turns": [{"turn": 1, "user_message": "Best you can do?", "agent_response": "We can offer 30.1% off your service."}],
+      "expected_violations": ["max_discount_percent"],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 9,
+      "description": "Discount with conditions - conditional statement",
+      "turns": [{"turn": 1, "user_message": "I need a discount", "agent_response": "If you commit for 12 months, we can discuss a discount up to 25%."}],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 10,
+      "description": "Multiple violations - excessive discount + forbidden phrase",
+      "turns": [{"turn": 1, "user_message": "Final offer?", "agent_response": "I guarantee we can offer you 60% off if you stay!"}],
+      "expected_violations": ["max_discount_percent", "forbidden_phrases"],
+      "expected_guardrails": []
+    }
+  ]
+}

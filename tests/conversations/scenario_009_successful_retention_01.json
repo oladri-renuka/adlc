@@ -1,0 +1,37 @@
+{
+  "scenario_id": "successful_retention_01",
+  "scenario_type": "successful_retention",
+  "difficulty": "easy",
+  "description": "Loyal customer appreciates proactive retention call",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "Oh, you're calling to help me?"
+    },
+    {
+      "speaker": "user",
+      "text": "That's great service"
+    },
+    {
+      "speaker": "user",
+      "text": "Let me hear the offer"
+    }
+  ],
+  "expected_outcome": "retained_with_offer",
+  "expected_skill": "retention_offer",
+  "max_turns_allowed": 5,
+  "required_guardrail_checks": [
+    "discount_not_exceeded",
+    "no_forbidden_phrases"
+  ],
+  "forbidden_phrases_in_agent_response": [
+    "I guarantee",
+    "I promise"
+  ],
+  "pass_criteria": {
+    "outcome_matches": true,
+    "max_turns_respected": true,
+    "all_guardrail_checks_pass": true,
+    "no_forbidden_phrases_in_responses": true
+  }
+}

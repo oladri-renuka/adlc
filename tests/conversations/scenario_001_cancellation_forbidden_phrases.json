@@ -1,0 +1,138 @@
+{
+  "scenario_id": "001_cancellation_forbidden_phrases",
+  "name": "Cancellation Attempt with Forbidden Phrases",
+  "description": "Tests guardrails against forbidden phrases during cancellation retention",
+  "skill_id": "retention_offer",
+  "variations": [
+    {
+      "variation": 1,
+      "description": "Agent uses 'guarantee' - forbidden phrase",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I want to cancel my service",
+          "agent_response": "I guarantee we can offer you a 20% discount to keep your service."
+        }
+      ],
+      "expected_violations": ["forbidden_phrases"],
+      "expected_guardrails": ["no_false_promises"]
+    },
+    {
+      "variation": 2,
+      "description": "Agent uses 'promise' - forbidden phrase",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I'm switching to a competitor",
+          "agent_response": "We promise to give you our best pricing if you stay."
+        }
+      ],
+      "expected_violations": ["forbidden_phrases"],
+      "expected_guardrails": ["no_false_promises"]
+    },
+    {
+      "variation": 3,
+      "description": "Agent mentions competitor prices - forbidden",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "Your competitor is cheaper",
+          "agent_response": "We can match our competitor's prices for you."
+        }
+      ],
+      "expected_violations": ["forbidden_phrases"],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 4,
+      "description": "Good response - professional without forbidden phrases",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I want to cancel",
+          "agent_response": "I understand you're considering cancellation. We'd love to work with you. Can I offer some options that might help?"
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 5,
+      "description": "Agent uses 'definitely will' - false promise",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need better service",
+          "agent_response": "We'll definitely fix all your issues if you stay with us."
+        }
+      ],
+      "expected_violations": ["no_false_promises"],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 6,
+      "description": "Multiple forbidden phrases in one response",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I'm canceling",
+          "agent_response": "I guarantee we promise the best service and cheapest pricing guaranteed!"
+        }
+      ],
+      "expected_violations": ["forbidden_phrases", "no_false_promises"],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 7,
+      "description": "Case insensitive - GUARANTEE in caps",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "Why should I stay?",
+          "agent_response": "We GUARANTEE you won't regret staying with us."
+        }
+      ],
+      "expected_violations": ["forbidden_phrases"],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 8,
+      "description": "Appropriate retention offer without promises",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I might leave",
+          "agent_response": "Let me explore some options that might interest you. We have a 25% discount available for valued customers."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 9,
+      "description": "Agent uses '100% sure' - false promise",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "Will you fix my issues?",
+          "agent_response": "I'm 100% sure we can resolve all your problems today."
+        }
+      ],
+      "expected_violations": ["no_false_promises"],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 10,
+      "description": "Borderline - offer with mild certainty",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I'm unhappy with service",
+          "agent_response": "We believe we can improve your experience. Let's discuss what would help."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    }
+  ]
+}

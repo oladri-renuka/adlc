@@ -1,0 +1,156 @@
+skill_id: technical_escalation
+name: "Technical Escalation"
+description: "Escalate technical issues to specialized support"
+version: "1.0"
+
+triggers:
+  - intent_keywords: ["not working", "broken", "technical issue", "connection", "speed", "outage"]
+    confidence_threshold: 0.7
+  - intent_keywords: ["disability", "accommodation", "legal", "regulatory", "complaint"]
+    confidence_threshold: 0.9
+    escalation_required: true
+  - customer_action: "technical_support_requested"
+
+required_slots:
+  - account_id:
+      type: string
+      required: true
+  - issue_description:
+      type: string
+      required: true
+  - issue_category:
+      type: string
+      required: false
+      enum: ["connectivity", "speed", "billing", "service_quality", "other"]
+  - urgency_level:
+      type: string
+      required: false
+      enum: ["low", "medium", "high", "critical"]
+  - accessibility_needed:
+      type: boolean
+      required: false
+      description: "Customer needs accessibility accommodations"
+  - legal_mention:
+      type: boolean
+      required: false
+      description: "Customer mentioned legal action or regulatory complaints"
+
+guardrails:
+  - require_human_escalation_on:
+      - "disability_accommodation"
+      - "legal_mention"
+      - "regulatory_complaint"
+  - no_false_promises: true
+    forbidden_phrases: ["guarantee", "definitely fix", "I promise"]
+    action_on_violation: "regenerate_without_phrase"
+
+actions:
+  - name: "classify_issue"
+    type: "deterministic"
+    logic: |
+      if legal_mention or accessibility_needed:
+        return {
+          escalation_level: "priority_human",
+          requires_specialist: true,
+          reason: "legal_or_accessibility"
+        }
+      if issue_category == "connectivity" or urgency_level == "critical":
+        return {
+          escalation_level: "technical_team",
+          requires_specialist: true,
+          reason: issue_category
+        }
+      return {
+        escalation_level: "standard_support",
+        requires_specialist: false
+      }
+
+  - name: "create_ticket"
+    type: "deterministic"
+    logic: |
+      ticket_id = generate_id()
+      db.insert_support_ticket({
+        ticket_id: ticket_id,
+        account_id: account_id,
+        issue_category: issue_category,
+        description: issue_description,
+        urgency: urgency_level,
+        escalation_level: classification.escalation_level,
+        created_at: now(),
+        status: "open"
+      })
+      return {
+        ticket_id: ticket_id,
+        status: "created"
+      }
+
+  - name: "generate_escalation_message"
+    type: "non-deterministic"
+    model: "claude-sonnet-4-6"
+    prompt_template: |
+      You are a telecom technical support representative.
+
+      Ticket ID: {ticket_id}
+      Issue: {issue_description}
+      Category: {issue_category}
+      Urgency: {urgency_level}
+      Accessibility needed: {accessibility_needed}
+
+      Generate a professional escalation message that:
+      - Acknowledges the issue and their frustration
+      - Confirms ticket number and next steps
+      - Sets realistic expectations for resolution timeline
+      - Provides temporary workarounds if applicable
+      - Offers direct contact method for follow-up
+
+      Do NOT promise specific fixes or restoration dates.
+      Keep response under 200 words.
+
+  - name: "assign_to_queue"
+    type: "deterministic"
+    logic: |
+      queue_name = get_queue_for_level(escalation_level)
+      estimated_wait = estimate_queue_wait(queue_name)
+      db.update_support_ticket({
+        ticket_id: ticket_id,
+        queue: queue_name,
+        assigned_at: now(),
+        estimated_wait_minutes: estimated_wait
+      })
+      return {
+        queue: queue_name,
+        estimated_wait: estimated_wait,
+        priority: urgency_level
+      }
+
+state_machine:
+  initial: "classify_issue"
+  states:
+    classify_issue:
+      action: "classify_issue"
+      transitions:
+        priority_human: "create_ticket"
+        technical_team: "create_ticket"
+        standard_support: "create_ticket"
+    create_ticket:
+      action: "create_ticket"
+      transitions:
+        success: "generate_message"
+        failed: "retry_create_ticket"
+    generate_message:
+      action: "generate_escalation_message"
+      transitions:
+        success: "assign_to_queue"
+    assign_to_queue:
+      action: "assign_to_queue"
+      transitions:
+        success: "completed"
+    retry_create_ticket:
+      action: "create_ticket"
+      transitions:
+        success: "generate_message"
+        failed: "escalate_to_human"
+    completed:
+      final: true
+    escalate_to_human:
+      final: true

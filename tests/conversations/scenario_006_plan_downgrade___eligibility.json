@@ -1,0 +1,138 @@
+{
+  "scenario_id": "006_plan_downgrade___eligibility",
+  "name": "Plan Downgrade - Eligibility",
+  "description": "Tests for plan downgrade - eligibility",
+  "skill_id": "plan_downgrade",
+  "variations": [
+    {
+      "variation": 1,
+      "description": "Appropriate downgrade offer",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "You can downgrade to our Basic plan anytime."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 2,
+      "description": "Clear downgrade options",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "We have Basic, Standard, and Premium plans. You can switch anytime."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 3,
+      "description": "Cost-saving downgrade message",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "The Basic plan is $29/month, saving you $50/month."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 4,
+      "description": "No downgrade without plan removal",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "You can downgrade. Active promotions will end on your current renewal date."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 5,
+      "description": "Downgrade with feature comparison",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "Basic plan includes: calls, texts, 5GB data. Premium has unlimited data."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 6,
+      "description": "Flexible downgrade option",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "You can downgrade, upgrade, or switch plans whenever you'd like."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 7,
+      "description": "Downgrade with retention incentive",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "If you downgrade, we can offer a $10 discount on the lower plan."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 8,
+      "description": "Clear pricing on downgrade",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "Downgrading to Basic starts at $29/month, effective immediately or next billing."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 9,
+      "description": "Downgrade eligibility check",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "Most customers can downgrade. Let me check if there are any service obligations."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    },
+    {
+      "variation": 10,
+      "description": "Simple downgrade confirmation",
+      "turns": [
+        {
+          "turn": 1,
+          "user_message": "I need help.",
+          "agent_response": "Downgrade confirmed. Your new plan starts on your next billing date."
+        }
+      ],
+      "expected_violations": [],
+      "expected_guardrails": []
+    }
+  ]
+}

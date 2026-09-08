@@ -1,0 +1,37 @@
+{
+  "scenario_id": "topic_switch_08",
+  "scenario_type": "topic_switch",
+  "difficulty": "hard",
+  "description": "Starts with complaint, ends with pause request",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "Service has been terrible"
+    },
+    {
+      "speaker": "user",
+      "text": "I need a break from this"
+    },
+    {
+      "speaker": "user",
+      "text": "Can I pause for a month"
+    }
+  ],
+  "skill_sequence": [
+    "retention_offer",
+    "pause_service"
+  ],
+  "expected_outcome": "paused",
+  "max_turns_allowed": 7,
+  "required_guardrail_checks": [
+    "skill_detection",
+    "state_transition"
+  ],
+  "forbidden_phrases_in_agent_response": [],
+  "pass_criteria": {
+    "skill_sequence_correct": true,
+    "max_turns_respected": true,
+    "state_transitions_valid": true,
+    "outcome_matches": true
+  }
+}

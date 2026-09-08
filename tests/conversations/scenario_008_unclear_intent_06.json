@@ -1,0 +1,33 @@
+{
+  "scenario_id": "unclear_intent_06",
+  "scenario_type": "unclear_intent",
+  "difficulty": "medium",
+  "description": "Unclear if cancellation intent or just complaints",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "I'm so frustrated"
+    },
+    {
+      "speaker": "user",
+      "text": "Maybe I should leave"
+    },
+    {
+      "speaker": "user",
+      "text": "I don't know what to do"
+    }
+  ],
+  "expected_outcome": "clarification_needed",
+  "expected_skill": "account_lookup",
+  "max_turns_allowed": 6,
+  "required_guardrail_checks": [
+    "no_forbidden_phrases"
+  ],
+  "forbidden_phrases_in_agent_response": [],
+  "pass_criteria": {
+    "outcome_matches": true,
+    "max_turns_respected": true,
+    "all_guardrail_checks_pass": true,
+    "no_forbidden_phrases_in_responses": true
+  }
+}

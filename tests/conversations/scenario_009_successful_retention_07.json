@@ -1,0 +1,37 @@
+{
+  "scenario_id": "successful_retention_07",
+  "scenario_type": "successful_retention",
+  "difficulty": "easy",
+  "description": "Technical issue resolution retains customer",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "My data is too slow"
+    },
+    {
+      "speaker": "user",
+      "text": "You can optimize my line?"
+    },
+    {
+      "speaker": "user",
+      "text": "Yes that would help"
+    }
+  ],
+  "expected_outcome": "retained_technical_fix",
+  "expected_skill": "retention_offer",
+  "max_turns_allowed": 5,
+  "required_guardrail_checks": [
+    "discount_not_exceeded",
+    "no_forbidden_phrases"
+  ],
+  "forbidden_phrases_in_agent_response": [
+    "I guarantee",
+    "I promise"
+  ],
+  "pass_criteria": {
+    "outcome_matches": true,
+    "max_turns_respected": true,
+    "all_guardrail_checks_pass": true,
+    "no_forbidden_phrases_in_responses": true
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "scenario_id": "successful_retention_06",
+  "scenario_type": "successful_retention",
+  "difficulty": "easy",
+  "description": "Manager callback convinces customer",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "This is really frustrating"
+    },
+    {
+      "speaker": "user",
+      "text": "A manager will call me?"
+    },
+    {
+      "speaker": "user",
+      "text": "OK I'll wait"
+    }
+  ],
+  "expected_outcome": "retained_pending_manager",
+  "expected_skill": "retention_offer",
+  "max_turns_allowed": 5,
+  "required_guardrail_checks": [
+    "discount_not_exceeded",
+    "no_forbidden_phrases"
+  ],
+  "forbidden_phrases_in_agent_response": [
+    "I guarantee",
+    "I promise"
+  ],
+  "pass_criteria": {
+    "outcome_matches": true,
+    "max_turns_respected": true,
+    "all_guardrail_checks_pass": true,
+    "no_forbidden_phrases_in_responses": true
+  }
+}

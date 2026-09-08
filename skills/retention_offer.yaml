@@ -1,0 +1,122 @@
+skill_id: retention_offer
+name: "Retention Offer"
+description: "Present retention incentive to prevent customer churn"
+version: "1.0"
+
+triggers:
+  - intent_keywords: ["cancel", "switching", "competitor", "too expensive", "price"]
+    confidence_threshold: 0.7
+  - customer_tenure_months: ["12-36"]
+    account_health: "at-risk"
+
+required_slots:
+  - account_id:
+      type: string
+      required: true
+      description: "Customer account ID"
+  - current_plan_price:
+      type: float
+      required: true
+      description: "Current monthly plan cost"
+  - cancellation_reason:
+      type: string
+      required: false
+      description: "Why customer wants to cancel"
+  - last_offer_date:
+      type: string
+      required: true
+      description: "When customer last received retention offer"
+  - discount_rate:
+      type: float
+      required: false
+      description: "Discount percentage to offer"
+
+guardrails:
+  - max_discount_percent: 30
+    action_on_violation: "regenerate_with_lower_discount"
+  - forbidden_phrases: ["I guarantee", "promise", "competitor prices"]
+    action_on_violation: "regenerate_without_phrase"
+  - offer_cooldown_days: 90
+    action_on_violation: "escalate_to_human"
+
+actions:
+  - name: "check_offer_eligibility"
+    type: "deterministic"
+    logic: |
+      // Deterministic rule engine
+      if days_since_last_offer < 90:
+        return {status: "ineligible", reason: "offer_cooldown_active"}
+      if account_has_unpaid_balance:
+        return {status: "ineligible", reason: "unpaid_balance"}
+      return {status: "eligible", discount_limit_percent: 30}
+
+  - name: "calculate_offer"
+    type: "deterministic"
+    logic: |
+      max_discount = current_plan_price * 0.30
+      base_offer = current_plan_price * 0.15
+      adjusted_offer = min(base_offer, max_discount)
+      return {
+        original_price: current_plan_price,
+        offer_price: current_plan_price - adjusted_offer,
+        discount_percent: (adjusted_offer / current_plan_price) * 100,
+        valid_until_days: 7
+      }
+
+  - name: "generate_retention_message"
+    type: "non-deterministic"
+    model: "claude-sonnet-4-6"
+    prompt_template: |
+      You are a retention specialist for a telecom company.
+
+      Customer account: {account_id}
+      Current plan: {plan_name} at ${current_plan_price}/month
+      Cancellation reason: {cancellation_reason}
+      Available offer: {discount_percent}% discount
+
+      Generate a personalized, empathetic retention message that:
+      - Acknowledges their concern
+      - Presents the discount offer clearly
+      - Emphasizes value of staying
+      - Includes 1-2 features relevant to their use case
+
+      Do NOT mention competitor prices. Do NOT guarantee service availability.
+      Keep response under 150 words.
+
+  - name: "log_offer"
+    type: "deterministic"
+    logic: |
+      db.insert_retention_offer({
+        account_id: account_id,
+        timestamp: now(),
+        offer_discount_percent: discount_percent,
+        original_price: current_plan_price,
+        offer_price: current_plan_price - discount,
+        status: "presented",
+        cancellation_reason: cancellation_reason
+      })
+
+state_machine:
+  initial: "check_eligibility"
+  states:
+    check_eligibility:
+      action: "check_offer_eligibility"
+      transitions:
+        eligible: "calculate_offer"
+        ineligible: "escalate_to_human"
+    calculate_offer:
+      action: "calculate_offer"
+      transitions:
+        success: "generate_message"
+    generate_message:
+      action: "generate_retention_message"
+      transitions:
+        success: "log_and_present"
+    log_and_present:
+      action: "log_offer"
+      transitions:
+        success: "completed"
+    escalate_to_human:
+      final: true
+    completed:
+      final: true

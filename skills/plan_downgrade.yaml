@@ -1,0 +1,129 @@
+skill_id: plan_downgrade
+name: "Plan Downgrade"
+description: "Help customer downgrade to lower-cost plan"
+version: "1.0"
+
+triggers:
+  - intent_keywords: ["cheaper", "reduce", "lower plan", "downgrade", "less data"]
+    confidence_threshold: 0.7
+  - customer_action: "downgrade_requested"
+
+required_slots:
+  - account_id:
+      type: string
+      required: true
+  - current_plan_id:
+      type: string
+      required: true
+  - current_plan_price:
+      type: float
+      required: true
+  - available_plans:
+      type: array
+      required: true
+      description: "List of available lower-tier plans"
+  - downgrade_reason:
+      type: string
+      required: false
+
+guardrails:
+  - prevent_upgrade: true
+    action_on_violation: "block_action"
+  - retain_existing_promotions: true
+    action_on_violation: "log_warning"
+
+actions:
+  - name: "list_available_downgrades"
+    type: "deterministic"
+    logic: |
+      cheaper_plans = []
+      for plan in available_plans:
+        if plan.price < current_plan_price and plan.status == "active":
+          cheaper_plans.append({
+            plan_id: plan.id,
+            name: plan.name,
+            price: plan.price,
+            savings: current_plan_price - plan.price,
+            data_gb: plan.data_gb
+          })
+      return sort_by_price(cheaper_plans)
+
+  - name: "validate_downgrade_eligible"
+    type: "deterministic"
+    logic: |
+      if account_has_unpaid_balance:
+        return {eligible: false, reason: "unpaid_balance"}
+      if account_in_contract_period:
+        return {eligible: false, reason: "contract_lock_in"}
+      return {eligible: true}
+
+  - name: "generate_downgrade_options"
+    type: "non-deterministic"
+    model: "claude-sonnet-4-6"
+    prompt_template: |
+      You are a telecom customer service specialist.
+
+      Customer current plan: {current_plan_name} at ${current_plan_price}/month
+      Reason for downgrade: {downgrade_reason}
+      Available options:
+      {available_options}
+
+      Generate a friendly summary of downgrade options with:
+      - Clear pricing comparison
+      - Feature differences
+      - Savings amount for each option
+      - Recommendation based on their stated needs
+
+      Keep response under 200 words.
+
+  - name: "wait_for_selection"
+    type: "deterministic"
+    logic: |
+      // Pause execution and wait for user to select a plan
+      return {status: "awaiting_user_input"}
+
+  - name: "process_downgrade"
+    type: "deterministic"
+    logic: |
+      if validate_downgrade_eligible():
+        return {
+          status: "success",
+          effective_date: "next_billing_cycle",
+          new_price: selected_plan.price,
+          savings_per_month: current_plan_price - selected_plan.price
+        }
+      return {status: "failed", reason: "not_eligible"}
+
+state_machine:
+  initial: "validate_eligibility"
+  states:
+    validate_eligibility:
+      action: "validate_downgrade_eligible"
+      transitions:
+        eligible: "list_options"
+        ineligible: "explain_reasons"
+    list_options:
+      action: "list_available_downgrades"
+      transitions:
+        options_found: "generate_summary"
+        no_options: "end_skill"
+    generate_summary:
+      action: "generate_downgrade_options"
+      transitions:
+        success: "await_selection"
+    await_selection:
+      action: "wait_for_selection"
+      transitions:
+        plan_selected: "process_downgrade"
+        cancelled: "end_skill"
+    process_downgrade:
+      action: "process_downgrade"
+      transitions:
+        success: "confirm_change"
+        failed: "escalate_to_human"
+    confirm_change:
+      final: true
+    explain_reasons:
+      final: true
+    end_skill:
+      final: true

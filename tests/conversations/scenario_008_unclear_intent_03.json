@@ -1,0 +1,33 @@
+{
+  "scenario_id": "unclear_intent_03",
+  "scenario_type": "unclear_intent",
+  "difficulty": "medium",
+  "description": "Non-native speaker - language barrier",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "My service is... problem"
+    },
+    {
+      "speaker": "user",
+      "text": "Not work good"
+    },
+    {
+      "speaker": "user",
+      "text": "How fix"
+    }
+  ],
+  "expected_outcome": "clarification_needed",
+  "expected_skill": "account_lookup",
+  "max_turns_allowed": 6,
+  "required_guardrail_checks": [
+    "no_forbidden_phrases"
+  ],
+  "forbidden_phrases_in_agent_response": [],
+  "pass_criteria": {
+    "outcome_matches": true,
+    "max_turns_respected": true,
+    "all_guardrail_checks_pass": true,
+    "no_forbidden_phrases_in_responses": true
+  }
+}

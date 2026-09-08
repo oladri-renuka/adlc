@@ -1,0 +1,37 @@
+{
+  "scenario_id": "topic_switch_05",
+  "scenario_type": "topic_switch",
+  "difficulty": "hard",
+  "description": "Coverage check becomes cancelation",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "Does this work in Hawaii"
+    },
+    {
+      "speaker": "user",
+      "text": "You don't cover there?"
+    },
+    {
+      "speaker": "user",
+      "text": "Then I need to cancel"
+    }
+  ],
+  "skill_sequence": [
+    "account_lookup",
+    "retention_offer"
+  ],
+  "expected_outcome": "escalated",
+  "max_turns_allowed": 7,
+  "required_guardrail_checks": [
+    "skill_detection",
+    "state_transition"
+  ],
+  "forbidden_phrases_in_agent_response": [],
+  "pass_criteria": {
+    "skill_sequence_correct": true,
+    "max_turns_respected": true,
+    "state_transitions_valid": true,
+    "outcome_matches": true
+  }
+}

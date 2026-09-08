@@ -1,0 +1,37 @@
+{
+  "scenario_id": "topic_switch_01",
+  "scenario_type": "topic_switch",
+  "difficulty": "hard",
+  "description": "Starts technical issue, ends in cancellation",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "My internet is slow"
+    },
+    {
+      "speaker": "user",
+      "text": "I've tried rebooting"
+    },
+    {
+      "speaker": "user",
+      "text": "Actually I want to cancel"
+    }
+  ],
+  "skill_sequence": [
+    "technical_escalation",
+    "retention_offer"
+  ],
+  "expected_outcome": "escalated",
+  "max_turns_allowed": 7,
+  "required_guardrail_checks": [
+    "skill_detection",
+    "state_transition"
+  ],
+  "forbidden_phrases_in_agent_response": [],
+  "pass_criteria": {
+    "skill_sequence_correct": true,
+    "max_turns_respected": true,
+    "state_transitions_valid": true,
+    "outcome_matches": true
+  }
+}

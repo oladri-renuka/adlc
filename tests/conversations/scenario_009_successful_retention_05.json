@@ -1,0 +1,37 @@
+{
+  "scenario_id": "successful_retention_05",
+  "scenario_type": "successful_retention",
+  "difficulty": "easy",
+  "description": "Feature addition retains customer",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "I don't have international roaming"
+    },
+    {
+      "speaker": "user",
+      "text": "You can add it?"
+    },
+    {
+      "speaker": "user",
+      "text": "Perfect, yes"
+    }
+  ],
+  "expected_outcome": "retained_with_features",
+  "expected_skill": "retention_offer",
+  "max_turns_allowed": 5,
+  "required_guardrail_checks": [
+    "discount_not_exceeded",
+    "no_forbidden_phrases"
+  ],
+  "forbidden_phrases_in_agent_response": [
+    "I guarantee",
+    "I promise"
+  ],
+  "pass_criteria": {
+    "outcome_matches": true,
+    "max_turns_respected": true,
+    "all_guardrail_checks_pass": true,
+    "no_forbidden_phrases_in_responses": true
+  }
+}

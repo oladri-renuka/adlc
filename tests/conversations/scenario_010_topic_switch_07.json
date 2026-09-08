@@ -1,0 +1,37 @@
+{
+  "scenario_id": "topic_switch_07",
+  "scenario_type": "topic_switch",
+  "difficulty": "hard",
+  "description": "Technical issue reported, customer actually wants features",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "I can't use video calling"
+    },
+    {
+      "speaker": "user",
+      "text": "Oh wait I don't have that feature"
+    },
+    {
+      "speaker": "user",
+      "text": "Add it to my plan"
+    }
+  ],
+  "skill_sequence": [
+    "technical_escalation",
+    "plan_downgrade"
+  ],
+  "expected_outcome": "upgraded",
+  "max_turns_allowed": 7,
+  "required_guardrail_checks": [
+    "skill_detection",
+    "state_transition"
+  ],
+  "forbidden_phrases_in_agent_response": [],
+  "pass_criteria": {
+    "skill_sequence_correct": true,
+    "max_turns_respected": true,
+    "state_transitions_valid": true,
+    "outcome_matches": true
+  }
+}

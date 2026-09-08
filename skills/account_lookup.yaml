@@ -1,0 +1,143 @@
+skill_id: account_lookup
+name: "Account Lookup"
+description: "Retrieve and display customer account information"
+version: "1.0"
+
+triggers:
+  - customer_action: "account_lookup_requested"
+  - intent_keywords: ["account info", "balance", "plan details", "usage", "billing"]
+    confidence_threshold: 0.7
+
+required_slots:
+  - account_id:
+      type: string
+      required: true
+      description: "Customer account identifier"
+  - lookup_type:
+      type: string
+      required: false
+      enum: ["full_summary", "plan_details", "billing", "usage", "payment_history"]
+      description: "Type of account information to retrieve"
+
+guardrails:
+  - data_sensitivity: "pii"
+    action_on_violation: "redact_sensitive_fields"
+  - only_own_account: true
+    action_on_violation: "block_action"
+
+actions:
+  - name: "fetch_account_data"
+    type: "deterministic"
+    logic: |
+      account = db.query_account(account_id)
+      if not account or not account.is_active:
+        return {status: "not_found", account_id: account_id}
+      return {
+        status: "found",
+        account: {
+          account_id: account.id,
+          customer_name: account.customer_name,
+          plan_id: account.plan_id,
+          plan_name: account.plan_name,
+          plan_price: account.plan_price,
+          current_balance: account.balance,
+          status: account.status,
+          created_date: account.created_date,
+          last_payment_date: account.last_payment_date
+        }
+      }
+
+  - name: "fetch_usage_data"
+    type: "deterministic"
+    logic: |
+      usage = db.query_usage_current_cycle(account_id)
+      return {
+        current_cycle_start: usage.cycle_start,
+        current_cycle_end: usage.cycle_end,
+        data_used_gb: usage.data_used,
+        data_limit_gb: usage.data_limit,
+        data_percent_used: (usage.data_used / usage.data_limit) * 100,
+        calls_used_minutes: usage.calls_used,
+        sms_used_count: usage.sms_used
+      }
+
+  - name: "fetch_billing_data"
+    type: "deterministic"
+    logic: |
+      billing = db.query_billing_summary(account_id)
+      return {
+        current_balance: billing.current_balance,
+        last_invoice_date: billing.last_invoice_date,
+        last_invoice_amount: billing.last_invoice_amount,
+        next_billing_date: billing.next_billing_date,
+        autopay_enabled: billing.autopay_enabled,
+        overdue_amount: billing.overdue_amount,
+        past_due_days: billing.past_due_days
+      }
+
+  - name: "format_account_summary"
+    type: "non-deterministic"
+    model: "claude-sonnet-4-6"
+    prompt_template: |
+      You are a telecom customer service representative formatting account information.
+
+      Account ID: {account_id}
+      Customer: {customer_name}
+      Plan: {plan_name} at ${plan_price}/month
+      Current Balance: ${current_balance}
+      Account Status: {status}
+
+      Usage (current cycle):
+      - Data: {data_percent_used}% of {data_limit_gb}GB used
+      - Calls: {calls_used_minutes} minutes
+      - SMS: {sms_used_count}
+
+      Billing:
+      - Last payment: {last_payment_date}
+      - Next billing: {next_billing_date}
+      - Autopay: {autopay_enabled}
+
+      Format this information as a clear, easy-to-read account summary.
+      Include helpful suggestions if usage is high or balance is overdue.
+      Keep response under 250 words.
+
+  - name: "redact_sensitive_data"
+    type: "deterministic"
+    logic: |
+      // Redact sensitive PII before display
+      redacted = {
+        account_id: account_id,
+        customer_name: mask_name(customer_name),
+        plan_price: plan_price,
+        current_balance: current_balance,
+        usage_data: usage_data,
+        // Full details only to authorized channels
+      }
+      return redacted
+
+state_machine:
+  initial: "fetch_account"
+  states:
+    fetch_account:
+      action: "fetch_account_data"
+      transitions:
+        found: "fetch_additional_data"
+        not_found: "error_not_found"
+    fetch_additional_data:
+      parallel_actions:
+        - "fetch_usage_data"
+        - "fetch_billing_data"
+      transitions:
+        success: "format_summary"
+    format_summary:
+      action: "format_account_summary"
+      transitions:
+        success: "redact_for_display"
+    redact_for_display:
+      action: "redact_sensitive_data"
+      transitions:
+        success: "completed"
+    error_not_found:
+      final: true
+    completed:
+      final: true

@@ -1,0 +1,37 @@
+{
+  "scenario_id": "successful_retention_02",
+  "scenario_type": "successful_retention",
+  "difficulty": "easy",
+  "description": "20% discount immediately accepted",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "I'm thinking about canceling"
+    },
+    {
+      "speaker": "user",
+      "text": "20% sounds good"
+    },
+    {
+      "speaker": "user",
+      "text": "Yes, I'll take it"
+    }
+  ],
+  "expected_outcome": "retained_with_offer",
+  "expected_skill": "retention_offer",
+  "max_turns_allowed": 5,
+  "required_guardrail_checks": [
+    "discount_not_exceeded",
+    "no_forbidden_phrases"
+  ],
+  "forbidden_phrases_in_agent_response": [
+    "I guarantee",
+    "I promise"
+  ],
+  "pass_criteria": {
+    "outcome_matches": true,
+    "max_turns_respected": true,
+    "all_guardrail_checks_pass": true,
+    "no_forbidden_phrases_in_responses": true
+  }
+}

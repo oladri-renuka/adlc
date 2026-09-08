@@ -1,0 +1,37 @@
+{
+  "scenario_id": "topic_switch_03",
+  "scenario_type": "topic_switch",
+  "difficulty": "hard",
+  "description": "Starts wanting to downgrade, ends asking to pause",
+  "turns": [
+    {
+      "speaker": "user",
+      "text": "Downgrade me to basic"
+    },
+    {
+      "speaker": "user",
+      "text": "Actually I'm leaving town"
+    },
+    {
+      "speaker": "user",
+      "text": "Can I just pause instead"
+    }
+  ],
+  "skill_sequence": [
+    "plan_downgrade",
+    "pause_service"
+  ],
+  "expected_outcome": "paused",
+  "max_turns_allowed": 7,
+  "required_guardrail_checks": [
+    "skill_detection",
+    "state_transition"
+  ],
+  "forbidden_phrases_in_agent_response": [],
+  "pass_criteria": {
+    "skill_sequence_correct": true,
+    "max_turns_respected": true,
+    "state_transitions_valid": true,
+    "outcome_matches": true
+  }
+}
