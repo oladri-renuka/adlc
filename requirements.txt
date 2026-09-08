@@ -12,6 +12,7 @@ anthropic==0.28.0
 
 # Web UI (Gradio - FREE on HF Spaces)
 gradio==4.44.1
+huggingface-hub==0.23.0
 
 # Utilities
 python-dotenv==1.0.0
