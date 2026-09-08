@@ -15,24 +15,6 @@ sys.path.insert(0, str(Path(__file__).parent))
 skill_names = ["retention_offer", "plan_downgrade", "pause_service", "technical_escalation", "account_lookup"]
 release_manager = None
 
-# Try to load from YAML
-try:
-    from skill_parser import SkillParser
-    skill_parser = SkillParser()
-    skills = skill_parser.load_skills()
-    skill_names = list(skills.keys())
-except Exception as e:
-    print(f"Warning: Could not load skills: {e}")
-    skill_parser = None
-
-# Try to load release manager
-try:
-    from release_manager import ReleaseManager
-    release_manager = ReleaseManager()
-except Exception as e:
-    print(f"Warning: Could not load release manager: {e}")
-    release_manager = None
-
 
 def demo_skill_detection(customer_message):
     """Demonstrate skill detection."""
@@ -402,4 +384,4 @@ with gr.Blocks(title="Sierra ADLC Framework", theme=gr.themes.Soft()) as demo:
 
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
+    demo.launch()
