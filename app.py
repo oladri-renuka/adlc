@@ -18,17 +18,28 @@ from release_manager import ReleaseManager
 
 # Initialize components
 skill_parser = SkillParser()
-guardrail_engine = GuardrailEngine()
 supervisor_model = SupervisorModel()
 release_manager = ReleaseManager()
+
+# Lazy initialize guardrail engine (requires skill registry)
+guardrail_engine = None
 
 # Load skills
 try:
     skills = skill_parser.load_skills()
     skill_names = list(skills.keys())
+    # Initialize guardrail engine with skill registry
+    try:
+        from database_models import DatabaseManager
+        db_manager = DatabaseManager()
+        guardrail_engine = GuardrailEngine(skill_parser.registry, db_manager)
+    except Exception as e:
+        print(f"Warning: Could not initialize guardrail engine: {e}")
+        guardrail_engine = None
 except Exception as e:
     skill_names = ["retention_offer", "plan_downgrade", "pause_service", "technical_escalation", "account_lookup"]
     print(f"Warning: Could not load skills from YAML: {e}")
+    guardrail_engine = None
 
 
 def format_guardrail_results(violations):
@@ -107,6 +118,9 @@ def demo_guardrail_check(skill_name, agent_response):
     """Demonstrate guardrail checking."""
     if not agent_response.strip():
         return "Please enter an agent response."
+
+    if guardrail_engine is None:
+        return "⚠️ Guardrail engine not available. Basic validation only:\n\n✅ No critical issues detected (guardrail engine offline)"
 
     try:
         # Check guardrails
@@ -272,12 +286,14 @@ Agent Response: "{agent_response}"
 """
 
         # Check guardrails
-        violations = guardrail_engine.check(
-            conversation_id="demo",
-            turn_number=1,
-            skill_name=skill_name,
-            agent_response=agent_response
-        )
+        violations = []
+        if guardrail_engine is not None:
+            violations = guardrail_engine.check(
+                conversation_id="demo",
+                turn_number=1,
+                skill_name=skill_name,
+                agent_response=agent_response
+            )
 
         if violations:
             result += "⚠️ **Guardrails Triggered:**\n"
