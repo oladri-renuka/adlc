@@ -108,7 +108,7 @@ Six check types run on every LLM response before the user sees it:
 - **escalation_triggers**: Legal threats, regulatory complaints, disability — always escalate
 - **tone_check**: No ALL CAPS, no multiple exclamation marks, no dismissive language
 
-Violations are logged to SQLite and the response is regenerated with the violation as a negative constraint. Max 2 retries then escalate. Zero violations reached the user across 100 test conversations.
+Violations are logged to SQLite and the response is regenerated with the violation as a negative constraint. Max 2 retries then escalate. Zero violations reached the user across  test conversations.
 
 ### Component 3: Supervisor Model
 
@@ -218,7 +218,7 @@ adlc-framework/
 │   ├── v1.0.0/
 │   └── v1.1.0/
 ├── tests/
-│   ├── conversations/         # 100 scripted test JSON files
+│   ├── conversations/         # test JSON files
 │   └── run_suite.py
 ├── app/
 │   ├── skill_engine.py        # Component 1
