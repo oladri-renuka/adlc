@@ -10,7 +10,7 @@ Not a chatbot. The infrastructure for building, testing, versioning, and supervi
 
 | Metric | Value |
 |--------|-------|
-| Regression test pass rate | **88% ** |
+| Regression test pass rate | **88%** |
 | Guardrail violations reaching user | **0** |
 | Guardrail detection rate | **88.89%** |
 | Supervisor detection rate | **92%+** |
