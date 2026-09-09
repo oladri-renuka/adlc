@@ -10,12 +10,11 @@ Not a chatbot. The infrastructure for building, testing, versioning, and supervi
 
 | Metric | Value |
 |--------|-------|
-| Regression test pass rate | **88% (88/100)** |
+| Regression test pass rate | **88% ** |
 | Guardrail violations reaching user | **0** |
 | Guardrail detection rate | **88.89%** |
 | Supervisor detection rate | **92%+** |
 | Release versions with rollback | **2 (v1.0.0, v1.1.0)** |
-| Test scenarios | **100 across 10 scenario types** |
 
 ---
 
@@ -28,7 +27,7 @@ Sierra's [ADLC blog post](https://sierra.ai/blog/the-agent-development-life-cycl
 | Declarative skills | YAML skill definitions with Pydantic validation |
 | Deterministic guardrails | GuardrailEngine intercepting every LLM response |
 | Supervisor model | Claude Haiku validating after guardrails pass |
-| Conversation regression tests | 100 scripted JSON conversations, auto-run on every release |
+| Conversation regression tests | scripted JSON conversations, auto-run on every release |
 | Immutable versioned releases | Snapshot-based release management with instant rollback |
 
 ---
@@ -120,7 +119,7 @@ Using Haiku (not Sonnet) for cost efficiency — fast enough for real-time valid
 
 ### Component 4: Conversation Regression Test Suite
 
-100 scripted JSON conversations across 10 scenario types, 10 variations each:
+Scripted JSON conversations across 10 scenario types, 10 variations each:
 
 - Price cancellation
 - Service quality complaints
@@ -133,7 +132,7 @@ Using Haiku (not Sonnet) for cost efficiency — fast enough for real-time valid
 - Successful retention (happy path)
 - Topic switches mid-conversation
 
-Every test specifies expected outcome, max turns, required guardrail checks, and forbidden phrases. A test passes only if all criteria are met. Pass rate: 88/100.
+Every test specifies expected outcome, max turns, required guardrail checks, and forbidden phrases. A test passes only if all criteria are met. Pass rate: 88%.
 
 ### Component 5: Versioned Agent Releases
 
